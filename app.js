@@ -3,6 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var httpStatus = require("http-status").default;
 
 var apiRouter = require('./routes');
 
@@ -22,8 +23,7 @@ app.use('/', apiRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  console.log(req.url);
-  next(createError(404));
+  next(createError(httpStatus.NOT_FOUND));
 });
 
 // error handler
@@ -32,9 +32,11 @@ app.use(function(err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+  res.send({
+    success: false, 
+    status: err.status || 500,
+    message: err.message
+  });
 });
 
 module.exports = app;
